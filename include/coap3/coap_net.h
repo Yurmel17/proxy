@@ -90,6 +90,10 @@ typedef void (*coap_ping_handler_t)(coap_session_t *session,
                                     const coap_pdu_t *received,
                                     const coap_mid_t mid);
 
+int setReceivedResponse(coap_context_t *ctx, coap_pdu_t *received_pdu);
+
+coap_pdu_t *getReceivedResponse(coap_context_t *received_pdu);
+
 /**
  * Received Pong handler that is used as callback in coap_context_t.
  *
@@ -896,3 +900,6 @@ coap_read(coap_context_t *ctx, coap_tick_t now
 #define COAP_RUN_BLOCK COAP_RUN_BLOCK_deprecated_use_COAP_IO_WAIT
 
 #endif /* COAP_NET_H_ */
+
+void
+coap_register_proxy_uri_resource(coap_context_t *ctx);

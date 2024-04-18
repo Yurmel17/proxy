@@ -229,6 +229,39 @@ coap_delete_all(coap_queue_t *queue) {
   coap_delete_node(queue);
 }
 
+int setReceivedResponse(coap_context_t *ctx, coap_pdu_t *received_pdu) {
+    if (ctx->received_pdu == NULL){
+        ctx->received_pdu = received_pdu;
+    }else {
+
+        ctx->received_pdu->code = received_pdu->code;
+        ctx->received_pdu->mid = received_pdu->mid;
+        ctx->received_pdu->type = received_pdu->type;
+        ctx->received_pdu->used_size = received_pdu->used_size;
+        ctx->received_pdu->token = received_pdu->token;
+        ctx->received_pdu->hdr_size = received_pdu->hdr_size;
+        ctx->received_pdu->data = received_pdu->data;
+        ctx->received_pdu->token_length = received_pdu->token_length;
+        ctx->received_pdu->max_size = received_pdu->max_size;
+        ctx->received_pdu->crit_opt = received_pdu->crit_opt;
+        ctx->received_pdu->alloc_size = received_pdu->alloc_size;
+        ctx->received_pdu->body_data = received_pdu->body_data;
+        ctx->received_pdu->body_length = received_pdu->body_length;
+        ctx->received_pdu->body_offset = received_pdu->body_offset;
+        ctx->received_pdu->body_total = received_pdu->body_total;
+        ctx->received_pdu->lg_xmit = received_pdu->lg_xmit;
+        ctx->received_pdu->max_hdr_size = received_pdu->max_hdr_size;
+        ctx->received_pdu->max_opt = received_pdu->max_opt;
+    }
+
+    return 1;
+}
+
+coap_pdu_t *getReceivedResponse(coap_context_t *ctx) {
+
+    return ctx->received_pdu;
+}
+
 coap_queue_t *
 coap_new_node(void) {
   coap_queue_t *node;
@@ -4227,6 +4260,19 @@ coap_register_response_handler(coap_context_t *context,
 #endif /* COAP_CLIENT_SUPPORT */
 }
 
+void coap_register_response_handler2(coap_context_t *context,
+                               coap_response_handler_t handler,
+                               coap_pdu_t *received_response) {
+#if COAP_CLIENT_SUPPORT
+
+        context->response_handler = handler;
+
+#else /* ! COAP_CLIENT_SUPPORT */
+        (void)context;
+  (void)handler;
+#endif /* COAP_CLIENT_SUPPORT */
+    }
+
 void
 coap_register_nack_handler(coap_context_t *context,
                            coap_nack_handler_t handler) {
@@ -4248,6 +4294,19 @@ coap_register_pong_handler(coap_context_t *context,
 void
 coap_register_option(coap_context_t *ctx, uint16_t type) {
   coap_option_filter_set(&ctx->known_options, type);
+}
+
+void
+coap_register_proxy_uri_resource(coap_context_t *ctx) {
+    static coap_resource_t proxy_resource;
+
+    static coap_str_const_t proxy_uri = { sizeof("coap://[::]:5684/time")-1,
+                                           (const uint8_t *)"coap://[::]:5684/time" };
+    memset(&proxy_resource, 0, sizeof(proxy_resource));
+    resource_uri_wellknown.handler[COAP_REQUEST_GET-1] = hnd_get_wellknown;
+    resource_uri_wellknown.flags = COAP_RESOURCE_FLAGS_HAS_MCAST_SUPPORT;
+    resource_uri_wellknown.uri_path = &proxy_uri;
+
 }
 
 #if ! defined WITH_CONTIKI && ! defined WITH_LWIP && ! defined RIOT_VERSION

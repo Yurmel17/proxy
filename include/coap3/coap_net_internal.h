@@ -55,9 +55,13 @@ struct coap_context_t {
                                           unknown resources */
   coap_resource_t *proxy_uri_resource; /**< can be used for handling
                                             proxy URI resources */
+    int is_final_proxy_endpoint;   /**< /*Indicates if server is an final endpoint proxy
+                                    * (differs from -P opt, which forces to create a name, and a URI where to redirect, ignoring proxy_uri)*/
   coap_resource_release_userdata_handler_t release_userdata;
   /**< function to  release user_data
        when resource is deleted */
+  coap_pdu_t *received_pdu; /**< To obtain the response pdu through response_handler in order to
+                              * be able to manage pdu response out of the response_handler scope */
 #endif /* COAP_SERVER_SUPPORT */
 
 #if COAP_ASYNC_SUPPORT

@@ -305,11 +305,11 @@ coap_add_data_blocked_response(const coap_pdu_t *request,
   memset(etag, 0, sizeof(etag));
   coap_hash(data, length, etag);
   coap_insert_option(response, COAP_OPTION_ETAG, sizeof(etag), etag);
-
-  coap_insert_option(response, COAP_OPTION_CONTENT_FORMAT,
-                     coap_encode_var_safe(buf, sizeof(buf),
-                                          media_type),
-                     buf);
+  if (media_type >= 0)
+    coap_insert_option(response, COAP_OPTION_CONTENT_FORMAT,
+                      coap_encode_var_safe(buf, sizeof(buf),
+                                            media_type),
+                      buf);
 
   if (maxage >= 0) {
     coap_insert_option(response,
